@@ -21,8 +21,19 @@ res.status(500).send(error);
 /* GET home page. */
 router.get('/', asyncHandler(async (req, res) => {
   const books = await Book.findAll();
-  console.log(res.json(books));
-  // res.render('index', { title: 'Express' });
+  // console.log(res.json(books));
+  if(books) {
+  res.render('index', { title: 'Express' });
+  } else {
+    res.sendStatus(404);
+    const err = new Error();
+    // The page will have a 404 not found error status
+    err.status = 404;
+        // Custom error message for the user
+        err.message = "So sorry, this page does not exist!";
+        // We render the 404 page, passing error
+        res.render("page-not-found", { err });
+  }
 }));
 
 
