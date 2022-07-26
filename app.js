@@ -1,3 +1,11 @@
+// Use the require method to import the instance of sequelize that 
+// was instantiated for you in the models/index.js file when you used 
+// the sequelize CLI
+const Sequelize = require('sequelize');
+
+
+
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -37,5 +45,46 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+
+// The dialect parameter specifies the specific version of SQL you're 
+// using (the SQL dialect of the database), which in this case it's 
+// sqlite. Since SQLite is a file-based database that doesn't require 
+// credentials or a host, you use the storage key to specify the file 
+// path or the storage engine for SQLite. The value 'library.db' is 
+// what we are using'.
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: 'library.db'
+});
+
+
+// async IIFE
+(async () => {
+  // Sync all tables
+  await sequelize.sync({ force: true });
+
+  try {
+    await sequelize.authenticate();
+
+    console.log("Connection to the database successful!");
+
+  } catch (error) {
+    if (error.name === "SequelizeValidationError") {
+      const errors = error.errors.map((err) => err.message);
+      console.error("Validation errors: ", errors);
+  } else {
+    throw error;
+  }
+}
+
+})();
+
+
+
+
+
+
+
 
 module.exports = app;
