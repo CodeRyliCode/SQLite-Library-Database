@@ -38,14 +38,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/books', books);
-
-// catch 404 and forward to error handler
-// app.use(function(req, res, next) {
-//   next(createError(404));
-// });
-
-
+app.use('/', books);
 
 
 // 404 handler
@@ -57,16 +50,7 @@ app.use((req, res) => {
 
 })
 
-// // error handler
-// app.use(function(err, req, res, next) {
-//   // set locals, only providing error in development
-//   res.locals.message = err.message;
-//   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-//   // render the error page
-//   res.status(err.status || 500);
-//   res.render('error');
-// });
 
 //  Global Error Handler
 app.use((err, req, res, next) => {
@@ -82,7 +66,6 @@ app.use((err, req, res, next) => {
  });
 
 
-
 // The dialect parameter specifies the specific version of SQL you're 
 // using (the SQL dialect of the database), which in this case it's 
 // sqlite. Since SQLite is a file-based database that doesn't require 
@@ -91,17 +74,19 @@ app.use((err, req, res, next) => {
 // what we are using'.
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: 'library.db'
+  storage: 'library.db',
+  logging: false
+
 });
 
 
 // async IIFE
 (async () => {
   // Sync all tables
-  await sequelize.sync({ force: true });
 
   try {
     await sequelize.authenticate();
+    await sequelize.sync({ force: true });
 
     console.log("Connection to the database successful!");
 
@@ -115,9 +100,6 @@ const sequelize = new Sequelize({
 }
 
 })();
-
-
-
 
 
 

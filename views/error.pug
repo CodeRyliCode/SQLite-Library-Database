@@ -1,6 +1,9 @@
-extends layout
+doctype html
+head
+  title Page Not Found
+h1 Server Error
+p Sorry! There was an unexpected error on the server.
+<br>
+<br>
+  a.button(href="/books/") <----- Back to Home ----->
 
-block content
-  h1= message
-  h2= err.status
-  pre #{err.stack}
