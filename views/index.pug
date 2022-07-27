@@ -1,10 +1,25 @@
 extends layout
 
 block content 
-  h1 Books
+  span
+  div
+ 
 
-  p
+
+
+    <br>
+     h1(style='text-align: left') Books
+        form(method='post' action=`/books/book.title`)
+            input( name='search' type='text' placeholder="Type a book..." id= title) 
+            input(style="display: flex" type='submit' value='Search')
+
+        
+
+
+  p(style='text-align:center;')
     a(class="button" href=`/books/new`) Create New Book
+
+
 
   table 
     thead 

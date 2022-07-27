@@ -116,7 +116,15 @@ router.post('/books/:id/delete', asyncHandler(async (req ,res) => {
 
 
 
-
+ router.get('/books/:id/', function(req, res, next) {
+  const title = await Book.findByPk(req.params.title);
+  Book.find({title: title}, function (err, book) {
+      if(err) {
+          return res.render('/');
+      }
+      res.render('books/:id', {book: title});
+  });
+});
 
 
 

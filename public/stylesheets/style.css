@@ -1,6 +1,13 @@
+* {
+
+  font-family: 'didot';
+}
+
 body {
   padding: 10px 50px 50px;
   font: 18px "Garamond", serif;
+  background-color: #FFFFFF;
+
 }
 
 a {
@@ -11,7 +18,7 @@ a {
 }
 
   a:hover {
-    color: black;
+    color: rgb(255, 0, 98);
   }
 
 a.button, input[type=submit] {
@@ -92,6 +99,6 @@ input[type=text] {
   width: 300px;
 }
 
-.error {
+.errors {
   color: rgb(236, 15, 15);
 }
