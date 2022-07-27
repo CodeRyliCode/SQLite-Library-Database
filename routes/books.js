@@ -37,7 +37,7 @@ router.get('/books/new', asyncHandler(async(req, res) => {
 
 
 // post /books/new - Posts a new book to the database
-router.post('/new', asyncHandler(async (req, res) => {
+router.post('/books/new', asyncHandler(async (req, res) => {
   // Check the error. If the error caught by catch 
   // is a SequelizeValidationError, re-render the 
   // articles/new view ("New Article" form), passing 
