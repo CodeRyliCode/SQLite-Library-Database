@@ -13,7 +13,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var booksRouter = require('./routes/books');
+var books = require('./routes/books');
 
 var app = express();
 
@@ -24,6 +24,7 @@ var app = express();
 
 //Setting up the middleware view engine to "pug"
 app.set("view engine", "pug");
+app.set('views', path.join(__dirname, 'views'));
 
 //using a static route AND express.static method to serve static public files
 app.use("/static", express.static("public"));
@@ -37,7 +38,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/books', booksRouter);
+app.use('/books', books);
 
 // catch 404 and forward to error handler
 // app.use(function(req, res, next) {
