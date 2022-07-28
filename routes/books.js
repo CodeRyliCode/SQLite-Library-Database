@@ -62,8 +62,13 @@ router.post('/books/new', asyncHandler(async (req, res) => {
 router.get("/books/:id", asyncHandler(async (req, res) => {
   const book = await Book.findByPk(req.params.id);
 
+  const { search } = req.query;
+  const { id } = req.params;
+  const text = book[id][search];
+const searchData = { text };
+
    if (book) {
-     res.render("update-book", { book }); 
+     res.render("update-book", { book, searchData }); 
    } else {
     const err = new Error();
 		err.status = 404;
@@ -116,15 +121,15 @@ router.post('/books/:id/delete', asyncHandler(async (req ,res) => {
 
 
 
- router.get('/books/:id/', function(req, res, next) {
-  const title = await Book.findByPk(req.params.title);
-  Book.find({title: title}, function (err, book) {
-      if(err) {
-          return res.render('/');
-      }
-      res.render('books/:id', {book: title});
-  });
-});
+// outer.get('/books/:id/', function(req, res, next) {
+//   const title = await Book.findByPk(req.params.title);
+//   Book.find({title: title}, function (err, book) {
+//       if(err) {
+//           return res.render('/');
+//       }
+//       res.render('books/:id', {book: title});
+//   });
+// }); r
 
 
 
