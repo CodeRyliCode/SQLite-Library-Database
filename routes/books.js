@@ -22,8 +22,8 @@ router.get(
   "/books",
   asyncHandler(async (req, res) => {
     const books = await Book.findAll();
-    const { search } = req.query;
-    const { id } = req.params;
+    const search = req.query;
+    const id  = req.params;
     // const text = books[id][search];
     // const searchData = { text };
 
@@ -31,8 +31,8 @@ router.get(
 
     // console.log(res.json(books));
 
-    console.log(req.query);
-    console.log({id});
+    console.log(req.query.search);
+    console.log(req.params.id);
   })
 );
 
