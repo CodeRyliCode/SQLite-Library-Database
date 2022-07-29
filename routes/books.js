@@ -1,22 +1,27 @@
-var express = require("express");
+const express = require("express");
 // const { is } = require("express/lib/request");
-var router = express.Router();
+const router = express.Router();
 //Import the Book model from the ../models folder
 const Book = require("../models").Book;
 //operators for search
 const { Op } = require("sequelize");
 
-/* Handler function to wrap each route. */
-function asyncHandler(cb) {
-  return async (req, res, next) => {
+
+/* Async handler from Treehouse. */
+function asyncHandler(cb){
+  return async(req, res, next) => {
     try {
-      await cb(req, res, next);
-    } catch (error) {
+      await cb(req, res, next)
+    } catch(error){
       // Forward error to the global error handler
-      res.status(500).send(error);
+      next(error);
     }
-  };
+  }
 }
+
+
+
+
 
 /* GET books listings. */
 router.get(
@@ -25,7 +30,7 @@ router.get(
     // console.log(res.json(books));
     const searchQuery = req.query.search ? req.query.search : "";
 
-    const books = await Book.findAll({
+    const { count, rows } = await Book.findAndCountAll({
   
       where: {
         [Op.or]: [
@@ -40,7 +45,7 @@ router.get(
 
 
 
-    res.render("index", { books: searchQuery });
+    res.render("index", {books}, searchQuery);
 
     // Right now when checking what 'books' contains, it shows up as
     // { count: 0, rows: [] } and I think that means that I need to include those
@@ -52,11 +57,6 @@ router.get(
   })
 );
 
-
-
-
-
-
 // get /books/new - Shows the create new book form
 router.get(
   "/books/new",
@@ -65,74 +65,87 @@ router.get(
   })
 );
 
-// post /books/new - Posts a new book to the database
-router.post(
-  "/books/new",
-  asyncHandler(async (req, res) => {
-    // Check the error. If the error caught by catch
-    // is a SequelizeValidationError, re-render the
-    // articles/new view ("New Article" form), passing
-    // in the errors to display:
-    let book;
-    try {
-      book = await Book.create(req.body);
-      res.redirect("/");
-    } catch (error) {
-      if (error.name === "SequelizeValidationError") {
-        // checking the error
-        book = await Book.build(req.body);
-        res.render("new", { book, errors: error.errors });
-      } else {
-        throw error; // error caught in the asyncHandler's catch block
-      }
-    }
-  })
-);
 
-// get /books/:id - Shows book detail form
-router.get(
-  "/books/:id",
-  asyncHandler(async (req, res) => {
-    const book = await Book.findByPk(req.params.id);
 
-    if (book) {
-      res.render("update-book", { book });
+
+
+
+/* Posts a new book to the database */
+router.post('/books/new', asyncHandler(async (req, res, next) => {
+  let book;
+  try {
+    book = await Book.create(req.body);
+    res.redirect("/books/" + book.id);
+  } catch (error) {
+    if (error.name === "SequelizeValidationError") {
+      book = await Book.build(req.body);
+      res.render("new-book", {book: book.dataValues, errors: error.errors })
     } else {
-      const err = new Error();
-      err.status = 404;
-      res.render("page-not-found", { err });
+      throw error;
     }
-  })
-);
+  }
+}));
 
-// post /books/:id - Updates book info in the database
-router.post(
-  "/books/:id/",
-  asyncHandler(async (req, res) => {
-    let book;
-    try {
-      book = await Book.findByPk(req.params.id);
-      if (book) {
-        await book.update(req.body);
-        res.redirect("/books/");
-      } else {
-        res.render("page-not-found");
-      }
-    } catch (error) {
-      if (error.name === "SequelizeValidationError") {
-        book = await Book.build(req.body);
-        book.id = req.params.id; // make sure correct article gets updated
-        res.render("update-book", { book, errors: error.errors });
-      } else {
-        throw error;
-      }
+
+
+/* Shows book detail form */
+router.get('/books/:id', asyncHandler(async (req, res, next) => {
+  const book = await Book.findByPk(req.params.id);
+  if (book) {
+    res.render("update-book", { book });
+  } else {
+    const err = new Error();
+    err.status = 404;
+    res.render("page-not-found", { err });
+  }
+}));
+
+
+/* Updates book info in the database */
+router.post('/books/:id', asyncHandler(async (req, res, next) => {
+  let book;
+  try {
+    book = await Book.findByPk(req.params.id);
+    if (book) {
+      await book.update(req.body);
+      res.redirect("/books/" + book.id);
+    } else {
+      res.render("page-not-found");
     }
-  })
-);
+  } catch (error) {
+    if (error.name === "SequelizeValidationError") {
+      book = await Book.build(req.body);
+      book.id = req.params.id;
+      res.render("update-book", { book, errors: error.errors })
+    } else {
+      throw error;
+    }
+  }
+}));
 
-// post /books/:id/delete - Deletes a book.
-// Careful, this can’t be undone. It can be helpful to create a new “test”
-// book to test deleting
+
+
+// /* Shows the full list of books */
+// router.get('/books/:offset?/:page?', asyncHandler(async (req, res, next) => {
+//   const offset = (req.params.offset) ? req.params.offset : 0;
+//   const books = await Book.findAndCountAll({
+//     limit: 5,
+//     offset: offset
+//   });
+//   if (books) {
+//     books.pages = Math.ceil(books.count / 5);
+//     books.activePage = (req.params.page) ? req.params.page : 1;
+//     res.render('books', { books });
+//   } else {
+//     // let error = new Error();
+//     // error.status = 404;
+//     // error.message = 'Sorry! We couldn`t find the page you were looking for';
+//     // res.render('page-not-found', { error });
+//   }
+// }));
+
+
+/* Deletes a book. Careful, this can’t be undone. It can be helpful */
 
 router.post(
   "/books/:id/delete",
@@ -147,18 +160,6 @@ router.post(
   })
 );
 
-//  I’d suggest to make the following change to the
-//   /views/index.pug file to start with. On line 12 change
-//    the form tag from this:
-//  form(method='post' action=`/books/${searchData}`)
-//  To this:
-//  form
-//  This will default back to a GET request and will add
-//  the values from the input as a query string to the url
-//   like so:
-//  http://localhost:3000/books?search=test
-//  From there in your routes/books.js file in the /books
-//  GET route you can access the value from the query
-//   string like so:
+
 
 module.exports = router;
