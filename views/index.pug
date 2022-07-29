@@ -9,12 +9,7 @@ block content
 
     <br>
      h1(style='text-align: left') Books
-
-        form
-            input( name='search' type='text' placeholder="Type a book..." id= title) 
-            input(style="display: flex" type='submit' value='Search')
-
-        
+     
 
   p
     a(class="button" style='margin-left: 620px;' href=`/books/new`) Create New Book        
@@ -22,6 +17,7 @@ block content
 
 
 
+ 
 
   table 
     thead 
@@ -38,3 +34,9 @@ block content
           td= book.author
           td= book.genre
           td= book.year
+    .searchbar
+      form
+        input( name='search' type='search' placeholder="Type a book..." id= search) 
+        input(style="display: flex" type='submit' value='Search')
+
+   

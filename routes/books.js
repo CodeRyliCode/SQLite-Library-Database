@@ -1,4 +1,5 @@
 var express = require("express");
+// const { is } = require("express/lib/request");
 var router = express.Router();
 //Import the Book model from the ../models folder
 const Book = require("../models").Book;
@@ -21,20 +22,40 @@ function asyncHandler(cb) {
 router.get(
   "/books",
   asyncHandler(async (req, res) => {
-    const books = await Book.findAll();
-    const search = req.query;
-    const id  = req.params;
-    // const text = books[id][search];
-    // const searchData = { text };
-
-    res.render("index", { books } );
-
     // console.log(res.json(books));
+    const searchQuery = req.query.search ? req.query.search : "";
 
-    console.log(req.query.search);
-    console.log(req.params.id);
+    const books = await Book.findAll({
+  
+      where: {
+        [Op.or]: [
+          { title: { [Op.like]: `%${searchQuery}%` } },
+          { author: { [Op.like]: `%${searchQuery}%` } },
+          { genre: { [Op.like]: `%${searchQuery}%` } },
+          { year: { [Op.like]: `%${searchQuery}%` } },
+        ],
+      },
+
+    });
+
+
+
+    res.render("index", { books: searchQuery });
+
+    // Right now when checking what 'books' contains, it shows up as
+    // { count: 0, rows: [] } and I think that means that I need to include those
+    // as a variable replacing the variable 'books' because the findAndCountAll is
+    // expecting to have some data for {count } and { rows }. We now have to
+    // include rows and count in our render for books: 
+    console.log(books);
+    // console.log(searchQuery);
   })
 );
+
+
+
+
+
 
 // get /books/new - Shows the create new book form
 router.get(
