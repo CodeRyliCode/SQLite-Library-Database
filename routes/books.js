@@ -5,6 +5,7 @@ const router = express.Router();
 const Book = require("../models").Book;
 //operators for search
 const { Op } = require("sequelize");
+const pageLimit = 5; // limits how many books are displayed on each page
 
 
 /* Async handler from Treehouse. */
@@ -23,39 +24,77 @@ function asyncHandler(cb){
 
 
 
-/* GET books listings. */
+// * GET: /books
+// * Shows the full list of books
+// */
 router.get(
+ "/books",
+ asyncHandler(async (req, res) => {
+   const allBooks = await Book.findAll({
+     order: [["createdAt", "DESC"]],
+   });
+   const pages = Math.ceil(allBooks.length / pageLimit);
+   let page = 1;
+   if (req.query.page) {
+     page = req.query.page;
+   }
+   let search = false;
+   const books = allBooks.slice((page - 1) * pageLimit, pageLimit * page);
+   res.render("index", { title: "Books", books, pages, page });
+ })
+);
+
+
+
+
+
+
+
+router.post(
   "/books",
   asyncHandler(async (req, res) => {
-    // console.log(res.json(books));
-    const searchQuery = req.query.search ? req.query.search : "";
-
-    const { count, rows } = await Book.findAndCountAll({
-  
+    const { search } = req.body;
+    const allBooks = await Book.findAll({
       where: {
         [Op.or]: [
-          { title: { [Op.like]: `%${searchQuery}%` } },
-          { author: { [Op.like]: `%${searchQuery}%` } },
-          { genre: { [Op.like]: `%${searchQuery}%` } },
-          { year: { [Op.like]: `%${searchQuery}%` } },
+          {
+            title: {
+              [Op.like]: `%${search}%`,
+            },
+          },
+          {
+            author: {
+              [Op.like]: `%${search}%`,
+            },
+          },
+          {
+            genre: {
+              [Op.like]: `%${search}%`,
+            },
+          },
+          {
+            year: {
+              [Op.like]: `%${search}%`,
+            },
+          },
         ],
       },
-
+      order: [["createdAt", "DESC"]],
     });
-
-
-
-    res.render("index", {books}, searchQuery);
-
-    // Right now when checking what 'books' contains, it shows up as
-    // { count: 0, rows: [] } and I think that means that I need to include those
-    // as a variable replacing the variable 'books' because the findAndCountAll is
-    // expecting to have some data for {count } and { rows }. We now have to
-    // include rows and count in our render for books: 
-    console.log(books);
-    // console.log(searchQuery);
+    const pages = Math.ceil(allBooks.length / pageLimit);
+    let page = 1;
+    if (req.query.page) {
+      page = req.query.page;
+    }
+    const books = allBooks.slice((page - 1) * pageLimit, pageLimit * page);
+    res.render("index", { title: "Books", books, pages, page, search });
   })
 );
+
+
+
+
+
 
 // get /books/new - Shows the create new book form
 router.get(
@@ -108,7 +147,7 @@ router.post('/books/:id', asyncHandler(async (req, res, next) => {
     book = await Book.findByPk(req.params.id);
     if (book) {
       await book.update(req.body);
-      res.redirect("/books/" + book.id);
+      res.redirect("/books/");
     } else {
       res.render("page-not-found");
     }
@@ -124,25 +163,6 @@ router.post('/books/:id', asyncHandler(async (req, res, next) => {
 }));
 
 
-
-// /* Shows the full list of books */
-// router.get('/books/:offset?/:page?', asyncHandler(async (req, res, next) => {
-//   const offset = (req.params.offset) ? req.params.offset : 0;
-//   const books = await Book.findAndCountAll({
-//     limit: 5,
-//     offset: offset
-//   });
-//   if (books) {
-//     books.pages = Math.ceil(books.count / 5);
-//     books.activePage = (req.params.page) ? req.params.page : 1;
-//     res.render('books', { books });
-//   } else {
-//     // let error = new Error();
-//     // error.status = 404;
-//     // error.message = 'Sorry! We couldn`t find the page you were looking for';
-//     // res.render('page-not-found', { error });
-//   }
-// }));
 
 
 /* Deletes a book. Careful, this can’t be undone. It can be helpful */

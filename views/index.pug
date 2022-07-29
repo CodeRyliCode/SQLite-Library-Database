@@ -1,40 +1,22 @@
 extends layout
 
-block content 
-  span
-  div
- 
-
-
-
-    <br>
-     h1(style='text-align: left') Books
-     
-
-  p
-    a(class="button" style='margin-left: 620px;' href=`/books/new`) Create New Book        
-
-
-
-
- 
-
-  table 
-    thead 
-      tr 
-        th Title 
-        th Author 
-        th Genre 
+block content
+  div#options
+    a.button#create-button(href="/books/new") Create New Book
+    include search-form.pug
+  table
+    thead
+      tr
+        th Title
+        th Author
+        th Genre
         th Year
-    tbody 
-      each book in books
+    tbody
+      each book in books 
         tr 
-          td
-            a(href=`/books/${book.id}`)= book.title 
-          td= book.author
-          td= book.genre
+          td 
+            a(href=`/books/${book.id}`)= book.title
+          td= book.author 
+          td= book.genre 
           td= book.year
-    .searchbar
-      form
-        input( name='search' type='search' placeholder="Type a book..." id= search) 
-        input(style="display: flex" type='submit' value='Search')
+  include page-buttons.pug
