@@ -3,9 +3,12 @@ const express = require("express");
 const router = express.Router();
 //Import the Book model from the ../models folder
 const Book = require("../models").Book;
+
+// how many books are displayed per page
+const limit = 5; 
+
 //operators for search
 const { Op } = require("sequelize");
-const pageLimit = 5; // limits how many books are displayed on each page
 
 
 /* Async handler from Treehouse. */
@@ -33,14 +36,14 @@ router.get(
    const allBooks = await Book.findAll({
      order: [["createdAt", "DESC"]],
    });
-   const pages = Math.ceil(allBooks.length / pageLimit);
+   const pages = Math.ceil(allBooks.length / limit);
    let page = 1;
    if (req.query.page) {
      page = req.query.page;
    }
    let search = false;
-   const books = allBooks.slice((page - 1) * pageLimit, pageLimit * page);
-   res.render("index", { title: "Books", books, pages, page });
+   const books = allBooks.slice((page - 1) * limit, limit * page);
+   res.render("index", { books, pages, page });
  })
 );
 
@@ -81,13 +84,13 @@ router.post(
       },
       order: [["createdAt", "DESC"]],
     });
-    const pages = Math.ceil(allBooks.length / pageLimit);
+    const pages = Math.ceil(allBooks.length / limit);
     let page = 1;
     if (req.query.page) {
       page = req.query.page;
     }
-    const books = allBooks.slice((page - 1) * pageLimit, pageLimit * page);
-    res.render("index", { title: "Books", books, pages, page, search });
+    const books = allBooks.slice((page - 1) * limit, limit * page);
+    res.render("index", { books, pages, page, search });
   })
 );
 
